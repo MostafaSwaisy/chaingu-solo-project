@@ -7,6 +7,7 @@ export function CreatePoll() {
   const navigate = useNavigate();
   const [question, setQuestion] = useState('');
   const [options, setOptions] = useState(['', '']);
+  const [expiresAt, setExpiresAt] = useState('');
   const [error, setError] = useState('');
 
   function updateOption(index, value) {
@@ -25,7 +26,11 @@ export function CreatePoll() {
     e.preventDefault();
     setError('');
     try {
-      const { data } = await api.post('/polls', { question, options });
+      const body = { question, options };
+      if (expiresAt) {
+        body.expiresAt = new Date(expiresAt).toISOString();
+      }
+      const { data } = await api.post('/polls', body);
       navigate(`/polls/${data.poll.id}`);
     } catch (err) {
       setError(err.response?.data?.error?.message || 'failed to create poll');
@@ -70,6 +75,15 @@ export function CreatePoll() {
           Add option
         </button>
       )}
+      <label className="create-poll__field">
+        Ends at (optional)
+        <input
+          className="create-poll__input"
+          type="datetime-local"
+          value={expiresAt}
+          onChange={(e) => setExpiresAt(e.target.value)}
+        />
+      </label>
       {error && <p role="alert" className="create-poll__error">{error}</p>}
       <button type="submit" className="create-poll__submit">
         Create poll

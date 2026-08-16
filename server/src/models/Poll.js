@@ -13,6 +13,8 @@ const pollSchema = new mongoose.Schema(
       },
     },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    expiresAt: { type: Date, default: null },
+    deletedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

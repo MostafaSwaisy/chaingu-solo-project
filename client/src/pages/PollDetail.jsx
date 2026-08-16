@@ -37,8 +37,9 @@ export function PollDetail() {
   if (!poll) return <p className="poll-detail__status">Loading…</p>;
 
   const hasVoted = poll.votedOptionIndex !== null;
+  const showResults = hasVoted || poll.isEnded;
 
-  if (!user || !hasVoted) {
+  if (!showResults) {
     return (
       <div>
         <h1 className="poll-detail__question">{poll.question}</h1>
@@ -72,6 +73,7 @@ export function PollDetail() {
   return (
     <div>
       <h1 className="poll-detail__question">{poll.question}</h1>
+      {poll.isEnded && !hasVoted && <p className="poll-detail__status">This poll has ended.</p>}
       <ul className="poll-results" aria-live="polite">
         {results.map((opt, i) => {
           const isMine = poll.votedOptionIndex === i;

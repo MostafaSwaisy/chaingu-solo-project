@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { connectTestDB, closeTestDB, clearTestDB } from './helpers/db.js';
 import { registerUser, loginUser } from '../src/services/authService.js';
+import { User } from '../src/models/User.js';
 
 beforeAll(async () => {
   process.env.JWT_SECRET = 'test_secret';
@@ -33,6 +34,16 @@ describe('registerUser', () => {
       'username, email, and password are required'
     );
   });
+
+  it('creates a regular user by default', async () => {
+    const user = await registerUser({ username: 'alice', email: 'alice@test.com', password: 'secret123' });
+    expect(user.isAdmin).toBe(false);
+  });
+
+  it('creates an admin user when isAdmin is true', async () => {
+    const user = await registerUser({ username: 'alice', email: 'alice@test.com', password: 'secret123', isAdmin: true });
+    expect(user.isAdmin).toBe(true);
+  });
 });
 
 describe('loginUser', () => {
@@ -63,5 +74,11 @@ describe('loginUser', () => {
 
   it('rejects an unknown identifier', async () => {
     await expect(loginUser({ identifier: 'ghost', password: 'secret123' })).rejects.toThrow('invalid credentials');
+  });
+
+  it('rejects a soft-deleted user', async () => {
+    await registerUser({ username: 'bob', email: 'bob@test.com', password: 'secret123' });
+    await User.findOneAndUpdate({ username: 'bob' }, { deletedAt: new Date() });
+    await expect(loginUser({ identifier: 'bob', password: 'secret123' })).rejects.toThrow('invalid credentials');
   });
 });

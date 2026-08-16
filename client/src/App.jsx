@@ -4,7 +4,9 @@ import { Register } from './pages/Register.jsx';
 import { PollList } from './pages/PollList.jsx';
 import { CreatePoll } from './pages/CreatePoll.jsx';
 import { PollDetail } from './pages/PollDetail.jsx';
+import { AdminDashboard } from './pages/admin/AdminDashboard.jsx';
 import { ProtectedRoute } from './components/ProtectedRoute.jsx';
+import { AdminRoute } from './components/AdminRoute.jsx';
 import { useAuth } from './context/AuthContext.jsx';
 import './App.css';
 
@@ -22,6 +24,11 @@ export default function App() {
               <Link to="/polls/new" className="nav__link">
                 Create Poll
               </Link>
+              {user.isAdmin && (
+                <Link to="/admin" className="nav__link">
+                  Admin
+                </Link>
+              )}
               <button className="nav__link nav__link--button" onClick={logout}>
                 Log out ({user.username})
               </button>
@@ -52,6 +59,14 @@ export default function App() {
             }
           />
           <Route path="/polls/:id" element={<PollDetail />} />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          />
         </Routes>
       </main>
     </div>

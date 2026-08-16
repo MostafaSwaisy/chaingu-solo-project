@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { connectTestDB, closeTestDB, clearTestDB } from './helpers/db.js';
 import { registerUser } from '../src/services/authService.js';
 import { createPoll, listPolls, getPoll, castVote, deletePoll } from '../src/services/pollService.js';
+import { Poll } from '../src/models/Poll.js';
 
 beforeAll(async () => {
   process.env.JWT_SECRET = 'test_secret';
@@ -39,6 +40,21 @@ describe('createPoll', () => {
     await expect(createPoll({ question: 'Too many?', options }, owner.id)).rejects.toThrow(
       'a poll must have between 2 and 6 options'
     );
+  });
+
+  it('accepts an optional future expiresAt', async () => {
+    const owner = await makeUser('alice');
+    const future = new Date(Date.now() + 60_000).toISOString();
+    const poll = await createPoll({ question: 'Best color?', options: ['Red', 'Blue'], expiresAt: future }, owner.id);
+    expect(new Date(poll.expiresAt).toISOString()).toBe(future);
+  });
+
+  it('rejects a past expiresAt', async () => {
+    const owner = await makeUser('alice');
+    const past = new Date(Date.now() - 60_000).toISOString();
+    await expect(
+      createPoll({ question: 'Best color?', options: ['Red', 'Blue'], expiresAt: past }, owner.id)
+    ).rejects.toThrow('expiresAt must be in the future');
   });
 });
 
@@ -78,6 +94,31 @@ describe('castVote', () => {
     const poll = await createPoll({ question: 'Best color?', options: ['Red', 'Blue'] }, owner.id);
     await expect(castVote(poll.id, voter.id, 5)).rejects.toThrow('invalid option index');
   });
+
+  it('rejects a vote on an ended poll', async () => {
+    const owner = await makeUser('alice');
+    const voter = await makeUser('bob');
+    const poll = await createPoll({ question: 'Best color?', options: ['Red', 'Blue'] }, owner.id);
+    await Poll.findByIdAndUpdate(poll.id, { expiresAt: new Date(Date.now() - 1000) });
+    await expect(castVote(poll.id, voter.id, 0)).rejects.toThrow('this poll has ended');
+  });
+});
+
+describe('getPoll', () => {
+  it('reports isEnded false for a poll with no expiry', async () => {
+    const owner = await makeUser('alice');
+    const poll = await createPoll({ question: 'Best color?', options: ['Red', 'Blue'] }, owner.id);
+    const result = await getPoll(poll.id, owner.id);
+    expect(result.isEnded).toBe(false);
+  });
+
+  it('reports isEnded true once expiresAt has passed', async () => {
+    const owner = await makeUser('alice');
+    const poll = await createPoll({ question: 'Best color?', options: ['Red', 'Blue'] }, owner.id);
+    await Poll.findByIdAndUpdate(poll.id, { expiresAt: new Date(Date.now() - 1000) });
+    const result = await getPoll(poll.id, owner.id);
+    expect(result.isEnded).toBe(true);
+  });
 });
 
 describe('deletePoll', () => {
@@ -87,6 +128,15 @@ describe('deletePoll', () => {
     await deletePoll(poll.id, owner.id);
     const polls = await listPolls();
     expect(polls).toHaveLength(0);
+  });
+
+  it('soft-deletes: the record still exists in the database', async () => {
+    const owner = await makeUser('alice');
+    const poll = await createPoll({ question: 'Best color?', options: ['Red', 'Blue'] }, owner.id);
+    await deletePoll(poll.id, owner.id);
+    const stillThere = await Poll.findById(poll.id);
+    expect(stillThere).not.toBeNull();
+    expect(stillThere.deletedAt).not.toBeNull();
   });
 
   it('rejects deletion by a non-owner', async () => {
