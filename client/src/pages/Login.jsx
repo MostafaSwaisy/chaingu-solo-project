@@ -6,7 +6,7 @@ import './Auth.css';
 export function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -16,7 +16,7 @@ export function Login() {
     setError('');
     setSubmitting(true);
     try {
-      await login(username, password);
+      await login(identifier, password);
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.error?.message || 'login failed');
@@ -29,12 +29,12 @@ export function Login() {
     <form onSubmit={handleSubmit} className="auth-form">
       <h1 className="auth-form__heading">Log in</h1>
       <label className="auth-form__field">
-        Username
+        Username or email
         <input
           className="auth-form__input"
           autoComplete="username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
         />
       </label>
       <label className="auth-form__field">

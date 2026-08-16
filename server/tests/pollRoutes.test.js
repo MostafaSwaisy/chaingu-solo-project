@@ -16,7 +16,7 @@ beforeEach(async () => {
 
 async function registerAndLogin(app, username) {
   await request(app).post('/api/auth/register').send({ username, email: `${username}@test.com`, password: 'secret123' });
-  const res = await request(app).post('/api/auth/login').send({ username, password: 'secret123' });
+  const res = await request(app).post('/api/auth/login').send({ identifier: username, password: 'secret123' });
   return res.body.token;
 }
 

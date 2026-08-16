@@ -36,19 +36,32 @@ describe('registerUser', () => {
 });
 
 describe('loginUser', () => {
-  it('returns a token and user for valid credentials', async () => {
+  it('returns a token and user when logging in with the username', async () => {
     await registerUser({ username: 'bob', email: 'bob@test.com', password: 'secret123' });
-    const result = await loginUser({ username: 'bob', password: 'secret123' });
+    const result = await loginUser({ identifier: 'bob', password: 'secret123' });
     expect(result.token).toBeDefined();
+    expect(result.user.username).toBe('bob');
+  });
+
+  it('returns a token and user when logging in with the email', async () => {
+    await registerUser({ username: 'bob', email: 'bob@test.com', password: 'secret123' });
+    const result = await loginUser({ identifier: 'bob@test.com', password: 'secret123' });
+    expect(result.token).toBeDefined();
+    expect(result.user.username).toBe('bob');
+  });
+
+  it('matches the email case-insensitively', async () => {
+    await registerUser({ username: 'bob', email: 'bob@test.com', password: 'secret123' });
+    const result = await loginUser({ identifier: 'BOB@TEST.COM', password: 'secret123' });
     expect(result.user.username).toBe('bob');
   });
 
   it('rejects an invalid password', async () => {
     await registerUser({ username: 'bob', email: 'bob@test.com', password: 'secret123' });
-    await expect(loginUser({ username: 'bob', password: 'wrong' })).rejects.toThrow('invalid credentials');
+    await expect(loginUser({ identifier: 'bob', password: 'wrong' })).rejects.toThrow('invalid credentials');
   });
 
-  it('rejects an unknown username', async () => {
-    await expect(loginUser({ username: 'ghost', password: 'secret123' })).rejects.toThrow('invalid credentials');
+  it('rejects an unknown identifier', async () => {
+    await expect(loginUser({ identifier: 'ghost', password: 'secret123' })).rejects.toThrow('invalid credentials');
   });
 });

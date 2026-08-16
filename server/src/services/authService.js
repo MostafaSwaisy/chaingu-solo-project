@@ -16,11 +16,13 @@ export async function registerUser({ username, email, password }) {
   return { id: user._id.toString(), username: user.username, email: user.email };
 }
 
-export async function loginUser({ username, password }) {
-  if (!username || !password) {
-    throw new AppError('username and password are required', 400, 'VALIDATION_ERROR');
+export async function loginUser({ identifier, password }) {
+  if (!identifier || !password) {
+    throw new AppError('username/email and password are required', 400, 'VALIDATION_ERROR');
   }
-  const user = await User.findOne({ username });
+  const user = await User.findOne({
+    $or: [{ username: identifier }, { email: identifier.toLowerCase() }],
+  });
   if (!user) {
     throw new AppError('invalid credentials', 401, 'INVALID_CREDENTIALS');
   }
