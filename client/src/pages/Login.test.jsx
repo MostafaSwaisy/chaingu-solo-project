@@ -14,7 +14,7 @@ beforeEach(() => {
 });
 
 describe('Login page', () => {
-  it('calls login with the entered credentials', async () => {
+  it('calls login with the entered username', async () => {
     const login = vi.fn().mockResolvedValue(undefined);
     useAuth.mockReturnValue({ login });
     render(
@@ -22,10 +22,24 @@ describe('Login page', () => {
         <Login />
       </MemoryRouter>
     );
-    await userEvent.type(screen.getByLabelText('Username'), 'alice');
+    await userEvent.type(screen.getByLabelText('Username or email'), 'alice');
     await userEvent.type(screen.getByLabelText('Password'), 'secret123');
     await userEvent.click(screen.getByRole('button', { name: 'Log in' }));
     expect(login).toHaveBeenCalledWith('alice', 'secret123');
+  });
+
+  it('calls login with an email address entered in the same field', async () => {
+    const login = vi.fn().mockResolvedValue(undefined);
+    useAuth.mockReturnValue({ login });
+    render(
+      <MemoryRouter>
+        <Login />
+      </MemoryRouter>
+    );
+    await userEvent.type(screen.getByLabelText('Username or email'), 'alice@test.com');
+    await userEvent.type(screen.getByLabelText('Password'), 'secret123');
+    await userEvent.click(screen.getByRole('button', { name: 'Log in' }));
+    expect(login).toHaveBeenCalledWith('alice@test.com', 'secret123');
   });
 
   it('shows an error message when login fails', async () => {
@@ -36,7 +50,7 @@ describe('Login page', () => {
         <Login />
       </MemoryRouter>
     );
-    await userEvent.type(screen.getByLabelText('Username'), 'alice');
+    await userEvent.type(screen.getByLabelText('Username or email'), 'alice');
     await userEvent.type(screen.getByLabelText('Password'), 'wrong');
     await userEvent.click(screen.getByRole('button', { name: 'Log in' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('invalid credentials');
@@ -51,7 +65,7 @@ describe('Login page', () => {
         <Login />
       </MemoryRouter>
     );
-    await userEvent.type(screen.getByLabelText('Username'), 'alice');
+    await userEvent.type(screen.getByLabelText('Username or email'), 'alice');
     await userEvent.type(screen.getByLabelText('Password'), 'secret123');
     await userEvent.click(screen.getByRole('button', { name: 'Log in' }));
     expect(screen.getByRole('button', { name: 'Logging in…' })).toBeInTheDocument();

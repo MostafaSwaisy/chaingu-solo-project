@@ -33,6 +33,13 @@ describe('AuthContext', () => {
     expect(localStorage.getItem('pollhub_token')).toBe('tok');
   });
 
+  it('sends the login value as the identifier field, so it works for a username or an email', async () => {
+    api.post.mockResolvedValueOnce({ data: { token: 'tok', user: { id: '1', username: 'alice' } } });
+    render(<AuthProvider><TestConsumer /></AuthProvider>);
+    await userEvent.click(screen.getByText('login'));
+    await waitFor(() => expect(api.post).toHaveBeenCalledWith('/auth/login', { identifier: 'alice', password: 'secret123' }));
+  });
+
   it('clears the user on logout', async () => {
     api.post.mockResolvedValueOnce({ data: { token: 'tok', user: { id: '1', username: 'alice' } } });
     render(<AuthProvider><TestConsumer /></AuthProvider>);

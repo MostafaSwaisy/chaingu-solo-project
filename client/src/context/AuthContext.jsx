@@ -9,8 +9,8 @@ export function AuthProvider({ children }) {
     return stored ? JSON.parse(stored) : null;
   });
 
-  const login = useCallback(async (username, password) => {
-    const { data } = await api.post('/auth/login', { username, password });
+  const login = useCallback(async (identifier, password) => {
+    const { data } = await api.post('/auth/login', { identifier, password });
     localStorage.setItem('pollhub_token', data.token);
     localStorage.setItem('pollhub_user', JSON.stringify(data.user));
     setUser(data.user);
