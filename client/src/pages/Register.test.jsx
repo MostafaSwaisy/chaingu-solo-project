@@ -43,4 +43,21 @@ describe('Register page', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Register' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('username or email already in use');
   });
+
+  it('shows a loading label while the request is in flight', async () => {
+    let resolveRegister;
+    const register = vi.fn(() => new Promise((resolve) => { resolveRegister = resolve; }));
+    useAuth.mockReturnValue({ register });
+    render(
+      <MemoryRouter>
+        <Register />
+      </MemoryRouter>
+    );
+    await userEvent.type(screen.getByLabelText('Username'), 'alice');
+    await userEvent.type(screen.getByLabelText('Email'), 'alice@test.com');
+    await userEvent.type(screen.getByLabelText('Password'), 'secret123');
+    await userEvent.click(screen.getByRole('button', { name: 'Register' }));
+    expect(screen.getByRole('button', { name: 'Creating account…' })).toBeInTheDocument();
+    resolveRegister();
+  });
 });
