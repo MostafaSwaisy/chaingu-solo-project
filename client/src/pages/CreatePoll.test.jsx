@@ -40,6 +40,25 @@ describe('CreatePoll page', () => {
     expect(api.post).toHaveBeenCalledWith('/polls', { question: 'Best color?', options: ['Red', 'Blue'] });
   });
 
+  it('includes expiresAt as an ISO string when an end time is set', async () => {
+    api.post.mockResolvedValueOnce({ data: { poll: { id: 'p1' } } });
+    render(
+      <MemoryRouter>
+        <CreatePoll />
+      </MemoryRouter>
+    );
+    await userEvent.type(screen.getByLabelText('Question'), 'Best color?');
+    await userEvent.type(screen.getByLabelText('Option 1'), 'Red');
+    await userEvent.type(screen.getByLabelText('Option 2'), 'Blue');
+    await userEvent.type(screen.getByLabelText('Ends at (optional)'), '2030-01-01T10:00');
+    await userEvent.click(screen.getByRole('button', { name: 'Create poll' }));
+    expect(api.post).toHaveBeenCalledWith('/polls', {
+      question: 'Best color?',
+      options: ['Red', 'Blue'],
+      expiresAt: new Date('2030-01-01T10:00').toISOString(),
+    });
+  });
+
   it('shows an error message when creation fails', async () => {
     api.post.mockRejectedValueOnce({ response: { data: { error: { message: 'a poll must have between 2 and 6 options' } } } });
     render(
