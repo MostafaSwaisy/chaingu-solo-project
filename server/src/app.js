@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { authRouter } from './routes/authRoutes.js';
+import { pollRouter } from './routes/pollRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 export function createApp() {
@@ -10,6 +11,7 @@ export function createApp() {
 
   app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
   app.use('/api/auth', authRouter);
+  app.use('/api/polls', pollRouter);
 
   app.use(errorHandler);
 
