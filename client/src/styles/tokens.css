@@ -1,0 +1,19 @@
+:root {
+  --ink: #1B2B27;
+  --ink-soft: #22362F;
+  --chalk: #F4F1E6;
+  --chalk-dim: #9FB0A7;
+  --marigold: #E8A33D;
+  --ember: #E2603A;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 40px;
+  --radius: 10px;
+}

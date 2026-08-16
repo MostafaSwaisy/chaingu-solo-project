@@ -41,4 +41,20 @@ describe('Login page', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Log in' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('invalid credentials');
   });
+
+  it('shows a loading label while the request is in flight', async () => {
+    let resolveLogin;
+    const login = vi.fn(() => new Promise((resolve) => { resolveLogin = resolve; }));
+    useAuth.mockReturnValue({ login });
+    render(
+      <MemoryRouter>
+        <Login />
+      </MemoryRouter>
+    );
+    await userEvent.type(screen.getByLabelText('Username'), 'alice');
+    await userEvent.type(screen.getByLabelText('Password'), 'secret123');
+    await userEvent.click(screen.getByRole('button', { name: 'Log in' }));
+    expect(screen.getByRole('button', { name: 'Logging in…' })).toBeInTheDocument();
+    resolveLogin();
+  });
 });

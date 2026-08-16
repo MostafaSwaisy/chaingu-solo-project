@@ -1,0 +1,35 @@
+.tally-count {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.tally-strokes {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.tally-strokes line {
+  stroke: var(--chalk-dim);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.tally-draw line {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: tally-draw-in 240ms ease-out forwards;
+}
+
+.tally-number {
+  color: var(--chalk);
+  font-weight: 600;
+}
+
+@keyframes tally-draw-in {
+  to {
+    stroke-dashoffset: 0;
+  }
+}

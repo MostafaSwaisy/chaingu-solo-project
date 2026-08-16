@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import './Auth.css';
 
 export function Login() {
   const { login } = useAuth();
@@ -25,21 +26,32 @@ export function Login() {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Log in</h1>
-      <label>
+    <form onSubmit={handleSubmit} className="auth-form">
+      <h1 className="auth-form__heading">Log in</h1>
+      <label className="auth-form__field">
         Username
-        <input value={username} onChange={(e) => setUsername(e.target.value)} />
+        <input
+          className="auth-form__input"
+          autoComplete="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
       </label>
-      <label>
+      <label className="auth-form__field">
         Password
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <input
+          className="auth-form__input"
+          type="password"
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
       </label>
-      {error && <p role="alert">{error}</p>}
-      <button type="submit" disabled={submitting}>
-        Log in
+      {error && <p role="alert" className="auth-form__error">{error}</p>}
+      <button type="submit" className="auth-form__submit" disabled={submitting}>
+        {submitting ? 'Logging in…' : 'Log in'}
       </button>
-      <p>
+      <p className="auth-form__switch">
         No account? <Link to="/register">Register</Link>
       </p>
     </form>

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { PollDetail } from './PollDetail.jsx';
@@ -60,8 +60,10 @@ describe('PollDetail page', () => {
       },
     });
     renderPollDetail();
-    expect(await screen.findByText(/Red: 75%/)).toBeInTheDocument();
-    expect(screen.getByText(/Blue: 25%/)).toBeInTheDocument();
+    const redRow = (await screen.findByText('Red')).closest('.poll-result-row');
+    expect(within(redRow).getByText('75%')).toBeInTheDocument();
+    const blueRow = screen.getByText('Blue').closest('.poll-result-row');
+    expect(within(blueRow).getByText('25%')).toBeInTheDocument();
   });
 
   it('casts a vote and re-renders with results', async () => {
@@ -93,6 +95,24 @@ describe('PollDetail page', () => {
     await userEvent.click(screen.getAllByRole('radio')[0]);
     await userEvent.click(screen.getByRole('button', { name: 'Vote' }));
     expect(api.post).toHaveBeenCalledWith('/polls/p1/vote', { optionIndex: 0 });
-    expect(await screen.findByText(/Red: 100%/)).toBeInTheDocument();
+    const redRow = (await screen.findByText('Red')).closest('.poll-result-row');
+    expect(within(redRow).getByText('100%')).toBeInTheDocument();
+  });
+
+  it('exposes an accessible label on the option the user voted for', async () => {
+    useAuth.mockReturnValue({ user: { id: 'u1', username: 'alice' } });
+    api.get.mockResolvedValueOnce({
+      data: {
+        poll: {
+          id: 'p1',
+          question: 'Best color?',
+          options: [{ text: 'Red', votes: 3 }, { text: 'Blue', votes: 1 }],
+          totalVotes: 4,
+          votedOptionIndex: 0,
+        },
+      },
+    });
+    renderPollDetail();
+    expect(await screen.findByText('(your vote)')).toBeInTheDocument();
   });
 });
