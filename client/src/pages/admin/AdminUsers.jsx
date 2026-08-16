@@ -4,6 +4,7 @@ import './Admin.css';
 
 export function AdminUsers() {
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -11,7 +12,10 @@ export function AdminUsers() {
   const [error, setError] = useState('');
 
   function loadUsers() {
-    api.get('/admin/users').then(({ data }) => setUsers(data.users));
+    api.get('/admin/users').then(({ data }) => {
+      setUsers(data.users);
+      setLoading(false);
+    });
   }
 
   useEffect(() => {
@@ -64,7 +68,9 @@ export function AdminUsers() {
         </button>
       </form>
 
-      {users.length === 0 ? (
+      {loading ? (
+        <p className="admin-section__status">Loading users…</p>
+      ) : users.length === 0 ? (
         <p className="admin-section__status">No users yet.</p>
       ) : (
         <div className="admin-table-wrapper">
