@@ -32,4 +32,14 @@ describe('PollList page', () => {
     );
     expect(await screen.findByRole('alert')).toHaveTextContent('failed to load polls');
   });
+
+  it('shows an empty-state message when there are no polls', async () => {
+    api.get.mockResolvedValueOnce({ data: { polls: [] } });
+    render(
+      <MemoryRouter>
+        <PollList />
+      </MemoryRouter>
+    );
+    expect(await screen.findByText('No polls yet. Start one.')).toBeInTheDocument();
+  });
 });
