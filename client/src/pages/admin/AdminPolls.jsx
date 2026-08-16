@@ -31,39 +31,41 @@ export function AdminPolls() {
       {polls.length === 0 ? (
         <p className="admin-section__status">No polls yet.</p>
       ) : (
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Question</th>
-              <th>Created</th>
-              <th>Ends</th>
-              <th>Status</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {polls.map((poll) => (
-              <tr key={poll.id}>
-                <td>{poll.question}</td>
-                <td>{new Date(poll.createdAt).toLocaleString()}</td>
-                <td>{poll.expiresAt ? new Date(poll.expiresAt).toLocaleString() : '—'}</td>
-                <td>{statusFor(poll)}</td>
-                <td>
-                  {!poll.deletedAt && !poll.isEnded && (
-                    <button className="admin-table__action" onClick={() => handleEnd(poll.id)}>
-                      End now
-                    </button>
-                  )}
-                  {!poll.deletedAt && (
-                    <button className="admin-table__action" onClick={() => handleDelete(poll.id)}>
-                      Delete
-                    </button>
-                  )}
-                </td>
+        <div className="admin-table-wrapper">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Question</th>
+                <th>Created</th>
+                <th>Ends</th>
+                <th>Status</th>
+                <th></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {polls.map((poll) => (
+                <tr key={poll.id}>
+                  <td>{poll.question}</td>
+                  <td>{new Date(poll.createdAt).toLocaleString()}</td>
+                  <td>{poll.expiresAt ? new Date(poll.expiresAt).toLocaleString() : '—'}</td>
+                  <td>{statusFor(poll)}</td>
+                  <td>
+                    {!poll.deletedAt && !poll.isEnded && (
+                      <button className="admin-table__action" onClick={() => handleEnd(poll.id)}>
+                        End now
+                      </button>
+                    )}
+                    {!poll.deletedAt && (
+                      <button className="admin-table__action" onClick={() => handleDelete(poll.id)}>
+                        Delete
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </section>
   );

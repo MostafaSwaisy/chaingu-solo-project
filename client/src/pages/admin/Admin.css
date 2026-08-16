@@ -60,8 +60,13 @@
   cursor: pointer;
 }
 
+.admin-table-wrapper {
+  overflow-x: auto;
+}
+
 .admin-table {
   width: 100%;
+  min-width: 480px;
   border-collapse: collapse;
 }
 

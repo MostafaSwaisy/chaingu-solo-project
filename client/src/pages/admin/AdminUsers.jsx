@@ -67,34 +67,36 @@ export function AdminUsers() {
       {users.length === 0 ? (
         <p className="admin-section__status">No users yet.</p>
       ) : (
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((u) => (
-              <tr key={u.id}>
-                <td>{u.username}</td>
-                <td>{u.email}</td>
-                <td>{u.isAdmin ? 'Admin' : 'User'}</td>
-                <td>{u.deletedAt ? 'Deleted' : 'Active'}</td>
-                <td>
-                  {!u.deletedAt && (
-                    <button className="admin-table__action" onClick={() => handleDelete(u.id)}>
-                      Delete
-                    </button>
-                  )}
-                </td>
+        <div className="admin-table-wrapper">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {users.map((u) => (
+                <tr key={u.id}>
+                  <td>{u.username}</td>
+                  <td>{u.email}</td>
+                  <td>{u.isAdmin ? 'Admin' : 'User'}</td>
+                  <td>{u.deletedAt ? 'Deleted' : 'Active'}</td>
+                  <td>
+                    {!u.deletedAt && (
+                      <button className="admin-table__action" onClick={() => handleDelete(u.id)}>
+                        Delete
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </section>
   );
