@@ -115,4 +115,24 @@ describe('PollDetail page', () => {
     renderPollDetail();
     expect(await screen.findByText('(your vote)')).toBeInTheDocument();
   });
+
+  it('shows results with an ended notice instead of the vote form once a poll has ended', async () => {
+    useAuth.mockReturnValue({ user: { id: 'u1', username: 'alice' } });
+    api.get.mockResolvedValueOnce({
+      data: {
+        poll: {
+          id: 'p1',
+          question: 'Best color?',
+          options: [{ text: 'Red', votes: 3 }, { text: 'Blue', votes: 1 }],
+          totalVotes: 4,
+          votedOptionIndex: null,
+          isEnded: true,
+        },
+      },
+    });
+    renderPollDetail();
+    expect(await screen.findByText('This poll has ended.')).toBeInTheDocument();
+    expect(screen.getByText('75%')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Vote' })).not.toBeInTheDocument();
+  });
 });
