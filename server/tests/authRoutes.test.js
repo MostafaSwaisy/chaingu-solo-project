@@ -33,16 +33,24 @@ describe('POST /api/auth/register', () => {
 });
 
 describe('POST /api/auth/login', () => {
-  it('returns a token for valid credentials', async () => {
+  it('returns a token when logging in with the username', async () => {
     const app = createApp();
     await request(app).post('/api/auth/register').send({ username: 'bob', email: 'bob@test.com', password: 'secret123' });
-    const res = await request(app).post('/api/auth/login').send({ username: 'bob', password: 'secret123' });
+    const res = await request(app).post('/api/auth/login').send({ identifier: 'bob', password: 'secret123' });
+    expect(res.status).toBe(200);
+    expect(res.body.token).toBeDefined();
+  });
+
+  it('returns a token when logging in with the email', async () => {
+    const app = createApp();
+    await request(app).post('/api/auth/register').send({ username: 'bob', email: 'bob@test.com', password: 'secret123' });
+    const res = await request(app).post('/api/auth/login').send({ identifier: 'bob@test.com', password: 'secret123' });
     expect(res.status).toBe(200);
     expect(res.body.token).toBeDefined();
   });
 
   it('returns 401 for invalid credentials', async () => {
-    const res = await request(createApp()).post('/api/auth/login').send({ username: 'ghost', password: 'nope' });
+    const res = await request(createApp()).post('/api/auth/login').send({ identifier: 'ghost', password: 'nope' });
     expect(res.status).toBe(401);
     expect(res.body.error.code).toBe('INVALID_CREDENTIALS');
   });
