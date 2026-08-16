@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/axios.js';
+import './CreatePoll.css';
 
 export function CreatePoll() {
   const navigate = useNavigate();
@@ -32,32 +33,47 @@ export function CreatePoll() {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Create Poll</h1>
-      <label>
+    <form onSubmit={handleSubmit} className="create-poll">
+      <h1 className="create-poll__heading">Create Poll</h1>
+      <label className="create-poll__field">
         Question
-        <input value={question} onChange={(e) => setQuestion(e.target.value)} />
+        <input
+          className="create-poll__input"
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+        />
       </label>
       {options.map((opt, i) => (
-        <div key={i}>
-          <label>
+        <div key={i} className="create-poll__option-row">
+          <label className="create-poll__field">
             {`Option ${i + 1}`}
-            <input value={opt} onChange={(e) => updateOption(i, e.target.value)} />
+            <input
+              className="create-poll__input"
+              autoComplete="off"
+              value={opt}
+              onChange={(e) => updateOption(i, e.target.value)}
+            />
           </label>
           {options.length > 2 && (
-            <button type="button" onClick={() => removeOption(i)}>
+            <button
+              type="button"
+              className="create-poll__remove"
+              onClick={() => removeOption(i)}
+            >
               Remove
             </button>
           )}
         </div>
       ))}
       {options.length < 6 && (
-        <button type="button" onClick={addOption}>
+        <button type="button" className="create-poll__add" onClick={addOption}>
           Add option
         </button>
       )}
-      {error && <p role="alert">{error}</p>}
-      <button type="submit">Create poll</button>
+      {error && <p role="alert" className="create-poll__error">{error}</p>}
+      <button type="submit" className="create-poll__submit">
+        Create poll
+      </button>
     </form>
   );
 }
