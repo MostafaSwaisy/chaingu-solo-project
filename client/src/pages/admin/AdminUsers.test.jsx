@@ -13,6 +13,14 @@ beforeEach(() => {
 });
 
 describe('AdminUsers page', () => {
+  it('shows a loading state before the users arrive', async () => {
+    let resolveGet;
+    api.get.mockReturnValueOnce(new Promise((resolve) => { resolveGet = resolve; }));
+    render(<AdminUsers />);
+    expect(screen.getByText('Loading users…')).toBeInTheDocument();
+    resolveGet({ data: { users: [] } });
+  });
+
   it('renders users returned from the API', async () => {
     api.get.mockResolvedValueOnce({
       data: {

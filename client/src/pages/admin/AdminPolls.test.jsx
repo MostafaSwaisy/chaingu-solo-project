@@ -13,6 +13,14 @@ beforeEach(() => {
 });
 
 describe('AdminPolls page', () => {
+  it('shows a loading state before the polls arrive', async () => {
+    let resolveGet;
+    api.get.mockReturnValueOnce(new Promise((resolve) => { resolveGet = resolve; }));
+    render(<AdminPolls />);
+    expect(screen.getByText('Loading polls…')).toBeInTheDocument();
+    resolveGet({ data: { polls: [] } });
+  });
+
   it('renders polls with their status', async () => {
     api.get.mockResolvedValueOnce({
       data: {

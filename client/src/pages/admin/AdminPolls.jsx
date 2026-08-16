@@ -10,9 +10,13 @@ function statusFor(poll) {
 
 export function AdminPolls() {
   const [polls, setPolls] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/admin/polls').then(({ data }) => setPolls(data.polls));
+    api.get('/admin/polls').then(({ data }) => {
+      setPolls(data.polls);
+      setLoading(false);
+    });
   }, []);
 
   async function handleEnd(id) {
@@ -28,7 +32,9 @@ export function AdminPolls() {
   return (
     <section>
       <h2 className="admin-section__heading">Polls</h2>
-      {polls.length === 0 ? (
+      {loading ? (
+        <p className="admin-section__status">Loading polls…</p>
+      ) : polls.length === 0 ? (
         <p className="admin-section__status">No polls yet.</p>
       ) : (
         <div className="admin-table-wrapper">
