@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
 import { AppError } from '../utils/AppError.js';
 
-export async function registerUser({ username, email, password }) {
+export async function registerUser({ username, email, password, isAdmin = false }) {
   if (!username || !email || !password) {
     throw new AppError('username, email, and password are required', 400, 'VALIDATION_ERROR');
   }
@@ -12,8 +12,8 @@ export async function registerUser({ username, email, password }) {
     throw new AppError('username or email already in use', 409, 'DUPLICATE_USER');
   }
   const passwordHash = await bcrypt.hash(password, 10);
-  const user = await User.create({ username, email, passwordHash });
-  return { id: user._id.toString(), username: user.username, email: user.email };
+  const user = await User.create({ username, email, passwordHash, isAdmin });
+  return { id: user._id.toString(), username: user.username, email: user.email, isAdmin: user.isAdmin };
 }
 
 export async function loginUser({ identifier, password }) {
@@ -21,6 +21,7 @@ export async function loginUser({ identifier, password }) {
     throw new AppError('username/email and password are required', 400, 'VALIDATION_ERROR');
   }
   const user = await User.findOne({
+    deletedAt: null,
     $or: [{ username: identifier }, { email: identifier.toLowerCase() }],
   });
   if (!user) {
@@ -35,5 +36,8 @@ export async function loginUser({ identifier, password }) {
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
   );
-  return { token, user: { id: user._id.toString(), username: user.username, email: user.email } };
+  return {
+    token,
+    user: { id: user._id.toString(), username: user.username, email: user.email, isAdmin: user.isAdmin },
+  };
 }
