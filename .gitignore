@@ -1,4 +1,5 @@
 Claude.md
 tier_developer.md
 .env
-.worktrees/  
+.worktrees/
+docs/deploy.md
