@@ -1,98 +1,197 @@
 # PollHub
 
-PollHub is a simple online polling app. Anyone can browse and view polls;
-registered users can create polls and vote; admins can manage users and
-polls from a dedicated dashboard.
+PollHub is a full-stack polling application. Anyone can browse and view
+polls; registered users can create polls and vote; admins can manage users
+and polls from a dedicated dashboard.
 
 **Live site:** _add your Netlify URL here_
+**Live API:** _add your Render URL here_
+
+---
+
+## Table of contents
+
+- [Description](#description)
+- [Screenshots](#screenshots)
+- [Tech stack](#tech-stack)
+- [Getting started](#getting-started)
+- [Running the tests](#running-the-tests)
+- [Usage](#usage)
+- [Deployment](#deployment)
+- [Reflection](#reflection)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
+
+---
+
+## Description
+
+PollHub lets anyone view active polls without an account. Registered users
+can create polls with 2-6 options and an optional expiry time, and vote once
+per poll. Admins get a dashboard to manage user accounts and moderate polls
+platform-wide.
+
+## Screenshots
+
+TODO: add screenshots or a short GIF of the home page, poll page, and admin
+dashboard here.
+
+## Tech stack
+
+**Client** (`client/`)
+
+- React 18 + Vite
+- React Router
+- Axios
+- Vitest + React Testing Library
+
+**Server** (`server/`)
+
+- Node.js + Express
+- MongoDB + Mongoose
+- JSON Web Tokens (`jsonwebtoken`) for auth
+- bcryptjs for password hashing
+- Vitest + Supertest
+
+**Deployment**
+
+- Client: Netlify (`netlify.toml`)
+- Server: Render (`render.yaml`)
 
 ---
 
 ## Getting started
 
-1. Open the site link above.
-2. Click **Register** and create an account with a username, email, and
-   password.
-3. You're automatically logged in after registering (and after future
-   logins) — your session stays active in the browser until you click
-   **Log out**.
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) 18+
+- A running MongoDB instance (local or a hosted service such as MongoDB
+  Atlas)
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/MostafaSwaisy/chaingu-solo-project.git
+   cd chaingu-solo-project
+   ```
+
+2. Install server dependencies and configure its environment:
+
+   ```bash
+   cd server
+   npm install
+   cp .env.example .env
+   ```
+
+   Set the values in `server/.env`:
+
+   | Variable          | Description                          |
+   | ----------------- | ------------------------------------ |
+   | `PORT`            | Port the API listens on              |
+   | `MONGODB_URI`     | Connection string for MongoDB        |
+   | `JWT_SECRET`      | Secret used to sign auth tokens      |
+   | `JWT_EXPIRES_IN`  | Auth token lifetime (e.g. `7d`)      |
+
+3. Install client dependencies and configure its environment:
+
+   ```bash
+   cd ../client
+   npm install
+   cp .env.example .env
+   ```
+
+   Set the value in `client/.env`:
+
+   | Variable       | Description                          |
+   | -------------- | ------------------------------------ |
+   | `VITE_API_URL` | Base URL of the running API          |
+
+4. Run both apps in development (in separate terminals):
+
+   ```bash
+   # from server/
+   npm run dev
+
+   # from client/
+   npm run dev
+   ```
+
+5. Open the URL Vite prints (typically `http://localhost:5173`).
+
+## Running the tests
+
+```bash
+# from server/
+npm test
+
+# from client/
+npm test
+```
 
 ---
 
-## Using PollHub as a regular user
+## Usage
 
-### Browsing polls
+### As a regular user
 
-- The home page lists all active polls. Click any poll to see its
-  question, options, and current vote counts.
-- You don't need an account to view polls, only to vote or create one.
+1. Click **Register** and create an account with a username, email, and
+   password. You're logged in automatically after registering.
+2. **Browse polls** on the home page — no account needed to view them.
+3. **Vote**: open a poll, select an option, and submit. Each account can
+   vote once per poll; if a poll's end time has passed, voting is closed but
+   results stay visible.
+4. **Create a poll**: click **Create Poll**, fill in a question, 2-6
+   options, and an optional expiry time, then submit.
+5. Click **Log out (your-username)** in the navigation to end your session.
 
-### Voting
+### As an admin
 
-1. Open a poll and log in if you haven't already.
-2. Select one option and submit your vote.
-3. Each account can vote once per poll — voting again on the same poll is
-   not allowed.
-4. If a poll has an end time and it has passed, voting is closed but the
-   results remain visible.
+Admin accounts see an **Admin** link leading to a dashboard with two
+panels. Regular accounts are not admins by default — an account becomes an
+admin only if another admin creates it that way, or it's promoted directly
+in the database.
 
-### Creating a poll
+- **Users panel** — view all registered users, add a new user, or remove
+  (deactivate) one. Deactivated accounts can't log in, but their historical
+  votes and polls are preserved.
+- **Polls panel** — view every poll, end one immediately regardless of its
+  scheduled expiry, or remove (deactivate) one. Deactivated polls drop off
+  the public list without destroying their data.
 
-1. Log in, then click **Create Poll** in the top navigation.
-2. Fill in:
-   - **Question** — what you're asking.
-   - **Options** — between 2 and 6 answer choices.
-   - **Ends at** (optional) — a date/time after which voting closes
-     automatically. Leave this blank for a poll that never expires.
-3. Click **Create poll**. You'll be taken straight to the new poll's page,
-   where you can share the link with others.
+> The first request to the deployed app after a period of inactivity may
+> take 30-50 seconds — the backend runs on a free hosting tier that sleeps
+> when idle.
 
-### Logging out
+## Deployment
 
-Click **Log out (your-username)** in the top navigation at any time.
+The client deploys to Netlify from `client/` (see `netlify.toml`); the
+server deploys to Render from `server/` (see `render.yaml`). Set the
+`MONGODB_URI` and `JWT_SECRET` environment variables in the Render
+dashboard, and `VITE_API_URL` (pointing at the deployed API) in Netlify.
 
----
+## Reflection
 
-## Using PollHub as an admin
+This project was built solo as a full-stack exercise in designing and
+shipping a small application end to end: REST API design, JWT
+authentication, MongoDB data modeling, and a React front end consuming
+that API, developed test-first throughout.
 
-Admin accounts see an **Admin** link in the navigation bar leading to a
-dashboard with two panels: **Users** and **Polls**.
+## Contributing
 
-> Regular accounts are not admins by default. An account becomes an admin
-> only if another admin creates it that way, or the account is promoted
-> directly in the database — there is no self-service way to become an
-> admin from the UI.
+This is a solo learning project and isn't actively seeking contributions,
+but issues and suggestions are welcome. To propose a change:
 
-### Managing users
+1. Fork the repository and create a feature branch.
+2. Make your change with tests covering the new behavior.
+3. Open a pull request describing what changed and why.
 
-From the **Users** panel you can:
+## License
 
-- **View** every registered user, including their username, email, and
-  admin status.
-- **Add a new user** directly (useful for creating another admin account
-  without going through public registration).
-- **Remove a user** — this deactivates the account (a "soft delete"); the
-  account can no longer log in, but its historical votes and polls are
-  preserved for record-keeping.
+This project is licensed under the [MIT License](LICENSE).
 
-### Managing polls
+## Contact
 
-From the **Polls** panel you can:
-
-- **View** every poll on the platform, including who created it and
-  whether it has ended.
-- **End a poll immediately** — closes voting right away, even if it had a
-  later scheduled end time or no end time at all.
-- **Remove a poll** — this deactivates the poll (a "soft delete"); it's
-  removed from the public poll list, but its data isn't destroyed.
-
----
-
-## Notes
-
-- The first request to the app after a period of inactivity may take
-  30-50 seconds to respond — the backend runs on a free hosting tier that
-  sleeps when idle and needs a moment to wake up.
-- If something isn't working, check that you're logged in (many actions
-  require an account) and that the poll you're trying to vote on hasn't
-  already ended.
+Mostafa Swaisy — [GitHub](https://github.com/MostafaSwaisy)
